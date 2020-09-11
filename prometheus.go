@@ -18,7 +18,16 @@ var containerOOMs = prometheus.NewGaugeVec(
 	[]string{"container_id", "container_short_id", "name"},
 )
 
+var containerLastExitCode = prometheus.NewGaugeVec(
+	prometheus.GaugeOpts{
+		Name: "container_last_exit_code",
+		Help: "Last exit code of the container",
+	},
+	[]string{"container_id", "container_short_id", "name"},
+)
+
 func init() {
 	prometheus.MustRegister(containerRestarts)
 	prometheus.MustRegister(containerOOMs)
+	prometheus.MustRegister(containerLastExitCode)
 }

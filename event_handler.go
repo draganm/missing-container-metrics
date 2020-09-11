@@ -9,16 +9,19 @@ import (
 )
 
 type container struct {
-	id           string
-	restarts     int
-	ooms         int
-	lastExitCode int
-	name         string
+	id       string
+	restarts int
+	ooms     int
+	name     string
 }
 
 func (c *container) die(exitCode int) {
-	c.lastExitCode = exitCode
 	c.restarts++
+	containerLastExitCode.With(prometheus.Labels{
+		"container_id":       c.id,
+		"container_short_id": c.id[:12],
+		"name":               c.name,
+	}).Set(float64(exitCode))
 }
 
 func (c *container) start() {
@@ -51,6 +54,12 @@ func (c *container) destroy() {
 		"name":               c.name,
 	})
 
+	containerLastExitCode.Delete(prometheus.Labels{
+		"container_id":       c.id,
+		"container_short_id": c.id[:12],
+		"name":               c.name,
+	})
+
 }
 
 type eventHandler struct {
@@ -68,7 +77,7 @@ func (eh *eventHandler) hasContainer(id string) bool {
 	return exists
 }
 
-func (eh *eventHandler) addContainer(id string, restarts int, name string) {
+func (eh *eventHandler) addContainer(id string, restarts, exitCode int, name string) {
 	if eh.hasContainer(id) {
 		return
 	}
@@ -85,6 +94,19 @@ func (eh *eventHandler) addContainer(id string, restarts int, name string) {
 		"container_short_id": shortID,
 		"name":               name,
 	}).Set(float64(restarts))
+
+	containerLastExitCode.With(prometheus.Labels{
+		"container_id":       id,
+		"container_short_id": shortID,
+		"name":               name,
+	}).Set(float64(exitCode))
+
+	containerOOMs.With(prometheus.Labels{
+		"container_id":       id,
+		"container_short_id": shortID,
+		"name":               name,
+	}).Set(0)
+
 }
 
 func (eh *eventHandler) handle(e events.Message) error {
@@ -96,7 +118,7 @@ func (eh *eventHandler) handle(e events.Message) error {
 	c := eh.containers[e.Actor.ID]
 	switch e.Action {
 	case "create":
-		eh.addContainer(e.Actor.ID, 0, e.Actor.Attributes["name"])
+		eh.addContainer(e.Actor.ID, 0, -1, e.Actor.Attributes["name"])
 	case "destroy":
 		if c != nil {
 			c.destroy()
