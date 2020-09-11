@@ -11,6 +11,7 @@ import (
 type container struct {
 	id           string
 	restarts     int
+	ooms         int
 	lastExitCode int
 	name         string
 }
@@ -28,8 +29,23 @@ func (c *container) start() {
 	}).Set(float64(c.restarts))
 }
 
+func (c *container) oom() {
+	c.ooms++
+	containerOOMs.With(prometheus.Labels{
+		"container_id":       c.id,
+		"container_short_id": c.id[:12],
+		"name":               c.name,
+	}).Set(float64(c.ooms))
+}
+
 func (c *container) destroy() {
 	containerRestarts.Delete(prometheus.Labels{
+		"container_id":       c.id,
+		"container_short_id": c.id[:12],
+		"name":               c.name,
+	})
+
+	containerOOMs.Delete(prometheus.Labels{
 		"container_id":       c.id,
 		"container_short_id": c.id[:12],
 		"name":               c.name,
@@ -46,10 +62,6 @@ func newEventHandler() *eventHandler {
 		containers: map[string]*container{},
 	}
 }
-
-// 2020-09-11T00:09:37.387259418+02:00 container oom c1583ef58f45cc0d82172cae63ddbd44699ad330175d12afd283467f13a843f3 (image=ubuntu, name=elated_keldysh)
-// 2020-09-11T00:09:44.678570439+02:00 container oom c1583ef58f45cc0d82172cae63ddbd44699ad330175d12afd283467f13a843f3 (image=ubuntu, name=elated_keldysh)
-// 2020-09-11T00:09:44.808568793+02:00 container die c1583ef58f45cc0d82172cae63ddbd44699ad330175d12afd283467f13a843f3 (exitCode=1, image=ubuntu, name=elated_keldysh)
 
 func (eh *eventHandler) hasContainer(id string) bool {
 	_, exists := eh.containers[id]
@@ -105,6 +117,9 @@ func (eh *eventHandler) handle(e events.Message) error {
 		}
 	// case "exec_create":
 	case "oom":
+		if c != nil {
+			c.oom()
+		}
 	}
 	return nil
 }
