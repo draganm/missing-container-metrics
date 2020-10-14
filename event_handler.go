@@ -16,51 +16,51 @@ type container struct {
 
 func (c *container) die(exitCode int) {
 	containerLastExitCode.With(prometheus.Labels{
-		"container_id":       c.id,
-		"container_short_id": c.id[:12],
-		"k8s_container_id":   fmt.Sprintf("docker://%s", c.id),
-		"name":               c.name,
+		"docker_container_id": c.id,
+		"container_short_id":  c.id[:12],
+		"container_id":        fmt.Sprintf("docker://%s", c.id),
+		"name":                c.name,
 	}).Inc()
 }
 
 func (c *container) start() {
 	containerRestarts.With(prometheus.Labels{
-		"container_id":       c.id,
-		"container_short_id": c.id[:12],
-		"k8s_container_id":   fmt.Sprintf("docker://%s", c.id),
-		"name":               c.name,
+		"docker_container_id": c.id,
+		"container_short_id":  c.id[:12],
+		"container_id":        fmt.Sprintf("docker://%s", c.id),
+		"name":                c.name,
 	}).Inc()
 }
 
 func (c *container) oom() {
 	containerOOMs.With(prometheus.Labels{
-		"container_id":       c.id,
-		"container_short_id": c.id[:12],
-		"k8s_container_id":   fmt.Sprintf("docker://%s", c.id),
-		"name":               c.name,
+		"docker_container_id": c.id,
+		"container_short_id":  c.id[:12],
+		"container_id":        fmt.Sprintf("docker://%s", c.id),
+		"name":                c.name,
 	}).Inc()
 }
 
 func (c *container) destroy() {
 	containerRestarts.Delete(prometheus.Labels{
-		"container_id":       c.id,
-		"container_short_id": c.id[:12],
-		"k8s_container_id":   fmt.Sprintf("docker://%s", c.id),
-		"name":               c.name,
+		"docker_container_id": c.id,
+		"container_short_id":  c.id[:12],
+		"container_id":        fmt.Sprintf("docker://%s", c.id),
+		"name":                c.name,
 	})
 
 	containerOOMs.Delete(prometheus.Labels{
-		"container_id":       c.id,
-		"container_short_id": c.id[:12],
-		"k8s_container_id":   fmt.Sprintf("docker://%s", c.id),
-		"name":               c.name,
+		"docker_container_id": c.id,
+		"container_short_id":  c.id[:12],
+		"container_id":        fmt.Sprintf("docker://%s", c.id),
+		"name":                c.name,
 	})
 
 	containerLastExitCode.Delete(prometheus.Labels{
-		"container_id":       c.id,
-		"container_short_id": c.id[:12],
-		"k8s_container_id":   fmt.Sprintf("docker://%s", c.id),
-		"name":               c.name,
+		"docker_container_id": c.id,
+		"container_short_id":  c.id[:12],
+		"container_id":        fmt.Sprintf("docker://%s", c.id),
+		"name":                c.name,
 	})
 
 }
@@ -93,10 +93,10 @@ func (eh *eventHandler) addContainer(id string, exitCode int, name string) {
 	shortID := id[:12]
 
 	containerLastExitCode.With(prometheus.Labels{
-		"container_id":       id,
-		"container_short_id": shortID,
-		"k8s_container_id":   fmt.Sprintf("docker://%s", id),
-		"name":               name,
+		"docker_container_id": id,
+		"container_short_id":  shortID,
+		"container_id":        fmt.Sprintf("docker://%s", id),
+		"name":                name,
 	}).Set(float64(exitCode))
 
 }
