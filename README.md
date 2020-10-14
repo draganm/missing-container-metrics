@@ -10,7 +10,7 @@ Every metric contains following labels:
 : First 6 bytes of the Docker container id.
 
 **k8s_container_id**
-: Container ID represented in the same format as in metrics of k8s pods - prefixed with `docker://`. This enables easy joins in k8s.
+: Container ID represented in the same format as in metrics of k8s pods - prefixed with `docker://`. This enables easy joins in Prometheus to k8s pods.
 
 **name**
 : Name of the container.
@@ -19,9 +19,6 @@ Every metric contains following labels:
 ## Exposed Metrics
 
 ### container_restarts (counter)
-Number of restarts of the container. 
-
-### container_restarts (conter)
 Number of restarts of the container. 
 
 ### container_ooms (conunter)
