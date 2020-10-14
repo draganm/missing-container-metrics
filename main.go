@@ -60,7 +60,7 @@ func main() {
 					exitCode = ci.State.ExitCode
 				}
 
-				h.addContainer(c.ID, ci.RestartCount, exitCode, strings.TrimPrefix(c.Names[0], "/"))
+				h.addContainer(c.ID, exitCode, strings.TrimPrefix(c.Names[0], "/"))
 			}
 
 			http.Handle("/metrics", promhttp.Handler())

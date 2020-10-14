@@ -2,16 +2,16 @@ package main
 
 import "github.com/prometheus/client_golang/prometheus"
 
-var containerRestarts = prometheus.NewGaugeVec(
-	prometheus.GaugeOpts{
+var containerRestarts = prometheus.NewCounterVec(
+	prometheus.CounterOpts{
 		Name: "container_restarts",
 		Help: "Number of restarts of a docker container",
 	},
 	[]string{"container_id", "container_short_id", "name"},
 )
 
-var containerOOMs = prometheus.NewGaugeVec(
-	prometheus.GaugeOpts{
+var containerOOMs = prometheus.NewCounterVec(
+	prometheus.CounterOpts{
 		Name: "container_ooms",
 		Help: "Number of OOM kills of a docker container",
 	},

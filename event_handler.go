@@ -10,20 +10,17 @@ import (
 )
 
 type container struct {
-	id       string
-	restarts int
-	ooms     int
-	name     string
+	id   string
+	name string
 }
 
 func (c *container) die(exitCode int) {
-	c.restarts++
 	containerLastExitCode.With(prometheus.Labels{
 		"container_id":       c.id,
 		"container_short_id": c.id[:12],
 		"k8s_container_id":   fmt.Sprintf("docker://%s", c.id),
 		"name":               c.name,
-	}).Set(float64(exitCode))
+	}).Inc()
 }
 
 func (c *container) start() {
@@ -32,17 +29,16 @@ func (c *container) start() {
 		"container_short_id": c.id[:12],
 		"k8s_container_id":   fmt.Sprintf("docker://%s", c.id),
 		"name":               c.name,
-	}).Set(float64(c.restarts))
+	}).Inc()
 }
 
 func (c *container) oom() {
-	c.ooms++
 	containerOOMs.With(prometheus.Labels{
 		"container_id":       c.id,
 		"container_short_id": c.id[:12],
 		"k8s_container_id":   fmt.Sprintf("docker://%s", c.id),
 		"name":               c.name,
-	}).Set(float64(c.ooms))
+	}).Inc()
 }
 
 func (c *container) destroy() {
@@ -84,24 +80,17 @@ func (eh *eventHandler) hasContainer(id string) bool {
 	return exists
 }
 
-func (eh *eventHandler) addContainer(id string, restarts, exitCode int, name string) {
+func (eh *eventHandler) addContainer(id string, exitCode int, name string) {
 	if eh.hasContainer(id) {
 		return
 	}
 	c := &container{
-		id:       id,
-		restarts: restarts,
-		name:     name,
+		id:   id,
+		name: name,
 	}
 	eh.containers[id] = c
 
 	shortID := id[:12]
-	containerRestarts.With(prometheus.Labels{
-		"container_id":       id,
-		"container_short_id": shortID,
-		"k8s_container_id":   fmt.Sprintf("docker://%s", id),
-		"name":               name,
-	}).Set(float64(restarts))
 
 	containerLastExitCode.With(prometheus.Labels{
 		"container_id":       id,
@@ -109,13 +98,6 @@ func (eh *eventHandler) addContainer(id string, restarts, exitCode int, name str
 		"k8s_container_id":   fmt.Sprintf("docker://%s", id),
 		"name":               name,
 	}).Set(float64(exitCode))
-
-	containerOOMs.With(prometheus.Labels{
-		"container_id":       id,
-		"container_short_id": shortID,
-		"k8s_container_id":   fmt.Sprintf("docker://%s", id),
-		"name":               name,
-	}).Set(0)
 
 }
 
@@ -128,7 +110,7 @@ func (eh *eventHandler) handle(e events.Message) error {
 	c := eh.containers[e.Actor.ID]
 	switch e.Action {
 	case "create":
-		eh.addContainer(e.Actor.ID, 0, -1, e.Actor.Attributes["name"])
+		eh.addContainer(e.Actor.ID, 0, e.Actor.Attributes["name"])
 	case "destroy":
 		if c != nil {
 			c.destroy()
