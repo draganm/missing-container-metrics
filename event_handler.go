@@ -14,55 +14,31 @@ type container struct {
 	name string
 }
 
-func (c *container) die(exitCode int) {
-	containerLastExitCode.With(prometheus.Labels{
+func (c *container) labels() prometheus.Labels {
+	return prometheus.Labels{
 		"docker_container_id": c.id,
 		"container_short_id":  c.id[:12],
 		"container_id":        fmt.Sprintf("docker://%s", c.id),
 		"name":                c.name,
-	}).Inc()
+	}
+}
+
+func (c *container) die(exitCode int) {
+	containerLastExitCode.With(c.labels()).Set(float64(exitCode))
 }
 
 func (c *container) start() {
-	containerRestarts.With(prometheus.Labels{
-		"docker_container_id": c.id,
-		"container_short_id":  c.id[:12],
-		"container_id":        fmt.Sprintf("docker://%s", c.id),
-		"name":                c.name,
-	}).Inc()
+	containerRestarts.With(c.labels()).Inc()
 }
 
 func (c *container) oom() {
-	containerOOMs.With(prometheus.Labels{
-		"docker_container_id": c.id,
-		"container_short_id":  c.id[:12],
-		"container_id":        fmt.Sprintf("docker://%s", c.id),
-		"name":                c.name,
-	}).Inc()
+	containerOOMs.With(c.labels()).Inc()
 }
 
 func (c *container) destroy() {
-	containerRestarts.Delete(prometheus.Labels{
-		"docker_container_id": c.id,
-		"container_short_id":  c.id[:12],
-		"container_id":        fmt.Sprintf("docker://%s", c.id),
-		"name":                c.name,
-	})
-
-	containerOOMs.Delete(prometheus.Labels{
-		"docker_container_id": c.id,
-		"container_short_id":  c.id[:12],
-		"container_id":        fmt.Sprintf("docker://%s", c.id),
-		"name":                c.name,
-	})
-
-	containerLastExitCode.Delete(prometheus.Labels{
-		"docker_container_id": c.id,
-		"container_short_id":  c.id[:12],
-		"container_id":        fmt.Sprintf("docker://%s", c.id),
-		"name":                c.name,
-	})
-
+	containerRestarts.Delete(c.labels())
+	containerOOMs.Delete(c.labels())
+	containerLastExitCode.Delete(c.labels())
 }
 
 type eventHandler struct {
@@ -75,29 +51,25 @@ func newEventHandler() *eventHandler {
 	}
 }
 
-func (eh *eventHandler) hasContainer(id string) bool {
-	_, exists := eh.containers[id]
-	return exists
+func (eh *eventHandler) hasContainer(id string) (*container, bool) {
+	c, ex := eh.containers[id]
+	return c, ex
 }
 
-func (eh *eventHandler) addContainer(id string, exitCode int, name string) {
-	if eh.hasContainer(id) {
-		return
+func (eh *eventHandler) addContainer(id string, name string) *container {
+
+	cnt, ex := eh.hasContainer(id)
+	if ex {
+		return cnt
 	}
+
 	c := &container{
 		id:   id,
 		name: name,
 	}
 	eh.containers[id] = c
 
-	shortID := id[:12]
-
-	containerLastExitCode.With(prometheus.Labels{
-		"docker_container_id": id,
-		"container_short_id":  shortID,
-		"container_id":        fmt.Sprintf("docker://%s", id),
-		"name":                name,
-	}).Set(float64(exitCode))
+	return c
 
 }
 
@@ -110,7 +82,7 @@ func (eh *eventHandler) handle(e events.Message) error {
 	c := eh.containers[e.Actor.ID]
 	switch e.Action {
 	case "create":
-		eh.addContainer(e.Actor.ID, 0, e.Actor.Attributes["name"])
+		eh.addContainer(e.Actor.ID, e.Actor.Attributes["name"])
 	case "destroy":
 		if c != nil {
 			c.destroy()

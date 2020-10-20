@@ -55,12 +55,13 @@ func main() {
 				if err != nil {
 					slogger.With("container_id", c.ID, "error", err).Warn("while getting container info")
 				}
-				exitCode := -1
+
+				cnt := h.addContainer(c.ID, strings.TrimPrefix(c.Names[0], "/"))
+
 				if ci.State.Status == "exited" {
-					exitCode = ci.State.ExitCode
+					cnt.die(ci.State.ExitCode)
 				}
 
-				h.addContainer(c.ID, exitCode, strings.TrimPrefix(c.Names[0], "/"))
 			}
 
 			http.Handle("/metrics", promhttp.Handler())
