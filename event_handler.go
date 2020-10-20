@@ -85,10 +85,10 @@ func (eh *eventHandler) handle(e events.Message) error {
 		return nil
 	}
 
-	c := eh.containers[e.Actor.ID]
+	c := eh.addContainer(e.Actor.ID, e.Actor.Attributes["name"])
 	switch e.Action {
 	case "create":
-		eh.addContainer(e.Actor.ID, e.Actor.Attributes["name"])
+		// just ignore
 	case "destroy":
 		if c != nil {
 			c.destroy()
