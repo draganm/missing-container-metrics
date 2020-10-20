@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/docker/docker/api/types/events"
 	"github.com/pkg/errors"
@@ -36,9 +37,14 @@ func (c *container) oom() {
 }
 
 func (c *container) destroy() {
-	containerRestarts.Delete(c.labels())
-	containerOOMs.Delete(c.labels())
-	containerLastExitCode.Delete(c.labels())
+	go func() {
+		// keep metrics alive for a minute so that they can be
+		// picked up by Prometheus
+		time.Sleep(time.Minute)
+		containerRestarts.Delete(c.labels())
+		containerOOMs.Delete(c.labels())
+		containerLastExitCode.Delete(c.labels())
+	}()
 }
 
 type eventHandler struct {
