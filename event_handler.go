@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/docker/docker/api/types/events"
@@ -37,23 +38,20 @@ func (c *container) oom() {
 }
 
 func (c *container) destroy() {
-	go func() {
-		// keep metrics alive for a minute so that they can be
-		// picked up by Prometheus
-		time.Sleep(time.Minute)
-		containerRestarts.Delete(c.labels())
-		containerOOMs.Delete(c.labels())
-		containerLastExitCode.Delete(c.labels())
-	}()
+	containerRestarts.Delete(c.labels())
+	containerOOMs.Delete(c.labels())
+	containerLastExitCode.Delete(c.labels())
 }
 
 type eventHandler struct {
 	containers map[string]*container
+	mu         *sync.Mutex
 }
 
 func newEventHandler() *eventHandler {
 	return &eventHandler{
 		containers: map[string]*container{},
+		mu:         &sync.Mutex{},
 	}
 }
 
@@ -80,6 +78,8 @@ func (eh *eventHandler) addContainer(id string, name string) *container {
 }
 
 func (eh *eventHandler) handle(e events.Message) error {
+	eh.mu.Lock()
+	defer eh.mu.Unlock()
 
 	if e.Type != "container" {
 		return nil
@@ -91,8 +91,15 @@ func (eh *eventHandler) handle(e events.Message) error {
 		// just ignore
 	case "destroy":
 		if c != nil {
-			c.destroy()
-			delete(eh.containers, e.Actor.ID)
+			go func() {
+				// wait 5 minutes to receive pending
+				// events and for scraping by Prometheus
+				time.Sleep(5 * time.Minute)
+				eh.mu.Lock()
+				defer eh.mu.Unlock()
+				c.destroy()
+				delete(eh.containers, e.Actor.ID)
+			}()
 		}
 	case "die":
 		if c != nil {
