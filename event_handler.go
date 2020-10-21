@@ -25,6 +25,12 @@ func (c *container) labels() prometheus.Labels {
 	}
 }
 
+func (c *container) create() {
+	containerRestarts.GetMetricWith(c.labels())
+	containerOOMs.GetMetricWith(c.labels())
+	containerLastExitCode.GetMetricWith(c.labels())
+}
+
 func (c *container) die(exitCode int) {
 	containerLastExitCode.With(c.labels()).Set(float64(exitCode))
 }
@@ -71,6 +77,8 @@ func (eh *eventHandler) addContainer(id string, name string) *container {
 		id:   id,
 		name: name,
 	}
+
+	c.create()
 	eh.containers[id] = c
 
 	return c
