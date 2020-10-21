@@ -13,6 +13,8 @@ import (
 	"go.uber.org/zap"
 )
 
+var Version string
+
 func main() {
 	a := &cli.App{
 		Flags: []cli.Flag{
@@ -30,7 +32,8 @@ func main() {
 				return err
 			}
 
-			slogger := logger.Sugar()
+			slogger := logger.Sugar().With("version", Version)
+			slogger.Info("started")
 
 			dc, err := client.NewEnvClient()
 			if err != nil {
