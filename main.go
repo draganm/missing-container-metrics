@@ -59,7 +59,7 @@ func main() {
 					slogger.With("container_id", c.ID, "error", err).Warn("while getting container info")
 				}
 
-				cnt := h.addContainer(c.ID, strings.TrimPrefix(c.Names[0], "/"))
+				cnt := h.addContainer(c.ID, strings.TrimPrefix(c.Names[0], "/"), c.Image)
 
 				if ci.State.Status == "exited" {
 					cnt.die(ci.State.ExitCode)

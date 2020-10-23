@@ -2,7 +2,7 @@ package main
 
 import "github.com/prometheus/client_golang/prometheus"
 
-var labelNames = []string{"container_id", "container_short_id", "docker_container_id", "name"}
+var labelNames = []string{"container_id", "container_short_id", "docker_container_id", "name", "image"}
 
 var containerRestarts = prometheus.NewCounterVec(
 	prometheus.CounterOpts{

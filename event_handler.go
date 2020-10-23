@@ -12,8 +12,9 @@ import (
 )
 
 type container struct {
-	id   string
-	name string
+	id    string
+	name  string
+	image string
 }
 
 func (c *container) labels() prometheus.Labels {
@@ -22,6 +23,7 @@ func (c *container) labels() prometheus.Labels {
 		"container_short_id":  c.id[:12],
 		"container_id":        fmt.Sprintf("docker://%s", c.id),
 		"name":                c.name,
+		"image":               c.image,
 	}
 }
 
@@ -66,7 +68,7 @@ func (eh *eventHandler) hasContainer(id string) (*container, bool) {
 	return c, ex
 }
 
-func (eh *eventHandler) addContainer(id string, name string) *container {
+func (eh *eventHandler) addContainer(id, name, image string) *container {
 
 	cnt, ex := eh.hasContainer(id)
 	if ex {
@@ -74,8 +76,9 @@ func (eh *eventHandler) addContainer(id string, name string) *container {
 	}
 
 	c := &container{
-		id:   id,
-		name: name,
+		id:    id,
+		name:  name,
+		image: image,
 	}
 
 	c.create()
@@ -93,7 +96,7 @@ func (eh *eventHandler) handle(e events.Message) error {
 		return nil
 	}
 
-	c := eh.addContainer(e.Actor.ID, e.Actor.Attributes["name"])
+	c := eh.addContainer(e.Actor.ID, e.Actor.Attributes["name"], e.Actor.Attributes["image"])
 	switch e.Action {
 	case "create":
 		// just ignore

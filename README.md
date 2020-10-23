@@ -15,6 +15,8 @@ Every metric contains following labels:
 **name**
 : Name of the container.
 
+**image**
+: Name of the Docker image for the container.
 
 ## Exposed Metrics
 
