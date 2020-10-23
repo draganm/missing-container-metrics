@@ -12,9 +12,9 @@ import (
 )
 
 type container struct {
-	id    string
-	name  string
-	image string
+	id      string
+	name    string
+	imageID string
 }
 
 func (c *container) labels() prometheus.Labels {
@@ -23,7 +23,7 @@ func (c *container) labels() prometheus.Labels {
 		"container_short_id":  c.id[:12],
 		"container_id":        fmt.Sprintf("docker://%s", c.id),
 		"name":                c.name,
-		"image":               c.image,
+		"image_id":            fmt.Sprintf("docker-pullable://%s", c.imageID),
 	}
 }
 
@@ -68,7 +68,7 @@ func (eh *eventHandler) hasContainer(id string) (*container, bool) {
 	return c, ex
 }
 
-func (eh *eventHandler) addContainer(id, name, image string) *container {
+func (eh *eventHandler) addContainer(id, name, imageID string) *container {
 
 	cnt, ex := eh.hasContainer(id)
 	if ex {
@@ -76,9 +76,9 @@ func (eh *eventHandler) addContainer(id, name, image string) *container {
 	}
 
 	c := &container{
-		id:    id,
-		name:  name,
-		image: image,
+		id:      id,
+		name:    name,
+		imageID: imageID,
 	}
 
 	c.create()

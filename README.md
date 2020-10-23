@@ -15,8 +15,8 @@ Every metric contains following labels:
 **name**
 : Name of the container.
 
-**image**
-: Name of the Docker image for the container.
+**image_id**
+: Image id represented in the same format as in metrics of k8s pods - prefixed with `docker-pullable://`. This enables easy joins in Prometheus to kube_pod_container_info metric.
 
 ## Exposed Metrics
 
