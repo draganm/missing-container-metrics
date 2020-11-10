@@ -12,9 +12,11 @@ import (
 )
 
 type container struct {
-	id      string
-	name    string
-	imageID string
+	id        string
+	name      string
+	imageID   string
+	pod       string
+	namespace string
 }
 
 func (c *container) labels() prometheus.Labels {
@@ -24,6 +26,8 @@ func (c *container) labels() prometheus.Labels {
 		"container_id":        fmt.Sprintf("docker://%s", c.id),
 		"name":                c.name,
 		"image_id":            fmt.Sprintf("docker-pullable://%s", c.imageID),
+		"pod":                 c.pod,
+		"namespace":           c.namespace,
 	}
 }
 
@@ -52,14 +56,16 @@ func (c *container) destroy() {
 }
 
 type eventHandler struct {
-	containers map[string]*container
-	mu         *sync.Mutex
+	containers                  map[string]*container
+	mu                          *sync.Mutex
+	getContainerPodAndNamespace func(string) (string, string)
 }
 
-func newEventHandler() *eventHandler {
+func newEventHandler(getContainerPodAndNamespace func(string) (string, string)) *eventHandler {
 	return &eventHandler{
-		containers: map[string]*container{},
-		mu:         &sync.Mutex{},
+		containers:                  map[string]*container{},
+		mu:                          &sync.Mutex{},
+		getContainerPodAndNamespace: getContainerPodAndNamespace,
 	}
 }
 
@@ -75,10 +81,14 @@ func (eh *eventHandler) addContainer(id, name, imageID string) *container {
 		return cnt
 	}
 
+	pod, namespace := eh.getContainerPodAndNamespace(id)
+
 	c := &container{
-		id:      id,
-		name:    name,
-		imageID: imageID,
+		id:        id,
+		name:      name,
+		imageID:   imageID,
+		pod:       pod,
+		namespace: namespace,
 	}
 
 	c.create()
