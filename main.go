@@ -66,6 +66,7 @@ func main() {
 				ci, err := dc.ContainerInspect(ctx, c.ID)
 				if err != nil {
 					slogger.With("container_id", c.ID, "error", err).Warn("while getting container info")
+					continue
 				}
 				cnt := h.addContainer(c.ID, strings.TrimPrefix(c.Names[0], "/"), c.Image)
 
