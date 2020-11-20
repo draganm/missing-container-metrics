@@ -1,6 +1,8 @@
 # Missing Container Metrics - metrics cadvisor won't give you
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/dmilhdef/missing-container-metrics.svg?maxAge=604800)][hub]
+[![Docker Automated Build](https://img.shields.io/docker/automated/dmilhdef/missing-container-metrics)][hub]
+
 
 **STATUS: stable, maintained**
 
