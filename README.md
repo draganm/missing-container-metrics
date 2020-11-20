@@ -26,12 +26,6 @@ then restarted by the main process. A fix was then deployed 10 minute later.
 
 ## Deployment
 
-### Docker
-
-```sh
-$ docker run -d -p 3001:3001 -v /var/run/docker.sock:/var/run/docker.sock dmilhdef/missing-container-metrics:v0.14.0
-```
-
 ### Kubernetes
 
 [> daemon-set.yaml](daemon-set.yaml)
@@ -76,6 +70,12 @@ spec:
           path: /var/run/docker.sock
 ```
 
+### Docker
+
+```sh
+$ docker run -d -p 3001:3001 -v /var/run/docker.sock:/var/run/docker.sock dmilhdef/missing-container-metrics:v0.14.0
+```
+
 ## Usage
 
 Exposes metrics about Docker containers from Docker events.
@@ -88,7 +88,7 @@ Each of those metrics, are published with the labels from the next section.
 
 Number of restarts of the container. 
 
-### `container_ooms` (conunter)
+### `container_ooms` (counter)
 
 Number of OOM kills for the container. This covers OOM kill of any process in
 the container cgroup.
@@ -118,6 +118,21 @@ Name of the container.
 ### `image_id`
 
 Image id represented in the same format as in metrics of k8s pods - prefixed with `docker-pullable://`. This enables easy joins in Prometheus to kube_pod_container_info metric.
+
+### `pod`
+
+If `io.kubernetes.pod.name` label is set on the container, it's value
+will be set as the `pod` label in the metric
+
+### `namespace`
+
+If `io.kubernetes.pod.namespace` label is set on the container, it's value
+will be set as the `namespace` label of the metric.
+
+This label, together with `pod` is useful in the context of Kubernetes deployments, to determine namespace/pod to which the container is part of,
+instead of having to join with `kube_pod_container_info` metric to determine
+those values.
+
 
 ## Contributing
 
