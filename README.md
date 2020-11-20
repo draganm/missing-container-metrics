@@ -34,7 +34,44 @@ $ docker run -d -p 3001:3001 -v /var/run/docker.sock:/var/run/docker.sock dmilhd
 
 [> daemon-set.yaml](daemon-set.yaml)
 ```yaml
-
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: missing-container-metrics
+  namespace: kube-system
+  labels:
+    k8s-app: missing-container-metrics
+spec:
+  selector:
+    matchLabels:
+      name: missing-container-metrics
+  template:
+    metadata:
+      labels:
+        name: missing-container-metrics
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '3001'
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      containers:
+      - name: missing-container-metrics
+        image: dmilhdef/missing-container-metrics:v0.14.0
+        resources:
+          limits:
+            memory: 20Mi
+          requests:
+            memory: 20Mi
+        volumeMounts:
+        - name: dockersock
+          mountPath: /var/run/docker.sock
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: dockersock
+        hostPath:
+          path: /var/run/docker.sock
 ```
 
 ## Usage
