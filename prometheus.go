@@ -4,6 +4,7 @@ import "github.com/prometheus/client_golang/prometheus"
 
 var labelNames = []string{
 	"container_id",
+	"container_name",
 	"container_short_id",
 	"docker_container_id",
 	"name",

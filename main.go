@@ -52,7 +52,7 @@ func main() {
 				return errors.Wrap(err, "while listing containers")
 			}
 
-			h := newEventHandler(func(containerID string) (pod string, namespace string) {
+			h := newEventHandler(func(containerID string) (pod string, namespace string, container_name: string) {
 				res, err := dc.ContainerInspect(context.Background(), containerID)
 				if err != nil {
 					return "", ""
@@ -60,7 +60,8 @@ func main() {
 
 				pod = res.Config.Labels["io.kubernetes.pod.name"]
 				namespace = res.Config.Labels["io.kubernetes.pod.namespace"]
-				return pod, namespace
+				container_name = res.Config.Labels["io.kubernetes.container.name"]
+				return pod, namespace, container_name
 			})
 			for _, c := range containers {
 				ci, err := dc.ContainerInspect(ctx, c.ID)

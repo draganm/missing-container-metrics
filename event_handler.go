@@ -12,11 +12,12 @@ import (
 )
 
 type container struct {
-	id        string
-	name      string
-	imageID   string
-	pod       string
-	namespace string
+	id             string
+	name           string
+	imageID        string
+	pod            string
+	namespace      string
+	container_name string
 }
 
 func (c *container) labels() prometheus.Labels {
@@ -28,6 +29,7 @@ func (c *container) labels() prometheus.Labels {
 		"image_id":            fmt.Sprintf("docker-pullable://%s", c.imageID),
 		"pod":                 c.pod,
 		"namespace":           c.namespace,
+		"container_name":      c.container_name,
 	}
 }
 
@@ -58,14 +60,14 @@ func (c *container) destroy() {
 type eventHandler struct {
 	containers                  map[string]*container
 	mu                          *sync.Mutex
-	getContainerPodAndNamespace func(string) (string, string)
+	getContainerInfo func(string) (string, string, string)
 }
 
-func newEventHandler(getContainerPodAndNamespace func(string) (string, string)) *eventHandler {
+func newEventHandler(getContainerInfo func(string) (string, string, string)) *eventHandler {
 	return &eventHandler{
 		containers:                  map[string]*container{},
 		mu:                          &sync.Mutex{},
-		getContainerPodAndNamespace: getContainerPodAndNamespace,
+		getContainerInfo: getContainerInfo,
 	}
 }
 
@@ -81,7 +83,7 @@ func (eh *eventHandler) addContainer(id, name, imageID string) *container {
 		return cnt
 	}
 
-	pod, namespace := eh.getContainerPodAndNamespace(id)
+	pod, namespace, container_name := eh.getContainerInfo(id)
 
 	c := &container{
 		id:        id,
@@ -89,6 +91,7 @@ func (eh *eventHandler) addContainer(id, name, imageID string) *container {
 		imageID:   imageID,
 		pod:       pod,
 		namespace: namespace,
+		container_name: container_name,
 	}
 
 	c.create()
