@@ -111,6 +111,11 @@ First 6 bytes of the Docker container id.
 
 Container id represented in the same format as in metrics of k8s pods - prefixed with `docker://`. This enables easy joins in Prometheus to kube_pod_container_info metric.
 
+### `container_name`
+
+If `io.kubernetes.container.name` label is set on the container, it's value
+will be set as the `container_name` label in the metric
+
 ### `name`
 
 Name of the container.
@@ -123,6 +128,7 @@ Image id represented in the same format as in metrics of k8s pods - prefixed wit
 
 If `io.kubernetes.pod.name` label is set on the container, it's value
 will be set as the `pod` label in the metric
+
 
 ### `namespace`
 
