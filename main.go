@@ -3,11 +3,8 @@ package main
 import (
 	"context"
 	"net/http"
-	"strings"
 
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
-	"github.com/pkg/errors"
+	"github.com/draganm/missing-container-metrics/docker"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
@@ -33,72 +30,38 @@ func main() {
 			}
 
 			slogger := logger.Sugar().With("version", Version)
-			slogger.Info("started")
 
-			dc, err := client.NewEnvClient()
-			if err != nil {
-				return errors.Wrap(err, "while creating docker client")
-			}
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 
-			evts, errs := dc.Events(ctx, types.EventsOptions{})
-
-			containers, err := dc.ContainerList(ctx, types.ContainerListOptions{
-				All: true,
-			})
-
-			if err != nil {
-				return errors.Wrap(err, "while listing containers")
-			}
-
-			h := newEventHandler(func(containerID string) (pod string, namespace string) {
-				res, err := dc.ContainerInspect(context.Background(), containerID)
+			go func() {
+				err := docker.HandleDocker(ctx, slogger)
 				if err != nil {
-					return "", ""
+					slogger.With("error", err).Error("while handling docker")
+					cancel()
 				}
+			}()
 
-				pod = res.Config.Labels["io.kubernetes.pod.name"]
-				namespace = res.Config.Labels["io.kubernetes.pod.namespace"]
-				return pod, namespace
-			})
-			for _, c := range containers {
-				ci, err := dc.ContainerInspect(ctx, c.ID)
-				if err != nil {
-					slogger.With("container_id", c.ID, "error", err).Warn("while getting container info")
-					continue
-				}
-				cnt := h.addContainer(c.ID, strings.TrimPrefix(c.Names[0], "/"), c.Image)
+			slogger.Info("started")
 
-				if ci.State.Status == "exited" {
-					cnt.die(ci.State.ExitCode)
-				}
-
-			}
-
-			http.Handle("/metrics", promhttp.Handler())
 			a := c.String("bind-address")
 
-			go func() {
+			mux := http.NewServeMux()
+			mux.Handle("/metrics", promhttp.Handler())
 
-				slogger.Infof("Listening on %s", a)
-				err := http.ListenAndServe(a, nil)
-				if err != nil {
-					slogger.With("error", err).Errorf("while listening on %s", a)
-				}
-				cancel()
-			}()
-			for {
-				select {
-				case e := <-evts:
-					err := h.handle(e)
-					if err != nil {
-						return errors.Wrapf(err, "while handling event %#v", e)
-					}
-				case err := <-errs:
-					return errors.Wrap(err, "while reading events")
-				}
+			server := &http.Server{
+				Addr:    a,
+				Handler: mux,
 			}
+
+			// Close server when the context gets cancelled
+			go func() {
+				<-ctx.Done()
+				server.Close()
+			}()
+
+			slogger.Infof("Listening on %s", a)
+			return server.ListenAndServe()
 
 		},
 	}
