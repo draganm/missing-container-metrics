@@ -38,6 +38,15 @@ func HandleContainerd(ctx context.Context, slogger *zap.SugaredLogger) error {
 		}, nil
 	})
 
+	containers, err := containerService.List(nctx)
+	if err != nil {
+		return errors.Wrap(err, "while listing containers")
+	}
+
+	for _, c := range containers {
+		eh.getOrCreateContainer(c.ID)
+	}
+
 	evts, errs := cl.EventService().Subscribe(nctx)
 	for {
 		select {
@@ -55,5 +64,4 @@ func HandleContainerd(ctx context.Context, slogger *zap.SugaredLogger) error {
 		}
 	}
 
-	return nil
 }
