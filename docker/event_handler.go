@@ -1,4 +1,4 @@
-package main
+package docker
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types/events"
+	"github.com/draganm/missing-container-metrics/metrics"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -32,27 +33,27 @@ func (c *container) labels() prometheus.Labels {
 }
 
 func (c *container) create() {
-	containerRestarts.GetMetricWith(c.labels())
-	containerOOMs.GetMetricWith(c.labels())
-	containerLastExitCode.GetMetricWith(c.labels())
+	metrics.ContainerRestarts.GetMetricWith(c.labels())
+	metrics.ContainerOOMs.GetMetricWith(c.labels())
+	metrics.ContainerLastExitCode.GetMetricWith(c.labels())
 }
 
 func (c *container) die(exitCode int) {
-	containerLastExitCode.With(c.labels()).Set(float64(exitCode))
+	metrics.ContainerLastExitCode.With(c.labels()).Set(float64(exitCode))
 }
 
 func (c *container) start() {
-	containerRestarts.With(c.labels()).Inc()
+	metrics.ContainerRestarts.With(c.labels()).Inc()
 }
 
 func (c *container) oom() {
-	containerOOMs.With(c.labels()).Inc()
+	metrics.ContainerOOMs.With(c.labels()).Inc()
 }
 
 func (c *container) destroy() {
-	containerRestarts.Delete(c.labels())
-	containerOOMs.Delete(c.labels())
-	containerLastExitCode.Delete(c.labels())
+	metrics.ContainerRestarts.Delete(c.labels())
+	metrics.ContainerOOMs.Delete(c.labels())
+	metrics.ContainerLastExitCode.Delete(c.labels())
 }
 
 type eventHandler struct {
