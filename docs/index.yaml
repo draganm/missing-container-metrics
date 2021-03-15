@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  missing-container-metrics:
+  - apiVersion: v2
+    appVersion: 0.21.0
+    created: "2021-03-15T23:37:30.752123997Z"
+    description: A Helm chart for installing missing-container-metrics exporter
+    digest: 89b557073108b81e88b0adc460a5f6b05ac965bc79fbc06e69efc55a631f6eb0
+    name: missing-container-metrics
+    type: application
+    urls:
+    - https://draganm.github.io/missing-container-metrics/missing-container-metrics-0.1.0.tgz
+    version: 0.1.0
+generated: "2021-03-15T23:37:30.751668931Z"
