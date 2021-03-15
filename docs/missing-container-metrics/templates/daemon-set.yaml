@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "missing-container-metrics.fullname" . }}
+  labels:
+    {{- include "missing-container-metrics.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "missing-container-metrics.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "missing-container-metrics.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+      {{- if .Values.useDocker}}
+      - name: dockersock
+        hostPath:
+          path: /var/run/docker.sock
+      {{- end }}
+      {{- if .Values.useContainerd}}
+      - name: containerdsock
+        hostPath:
+          path: /run/containerd/containerd.sock
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DOCKER
+          {{- if .Values.useDocker}}
+              value: "true"
+          {{- else }}
+              value: "false"
+          {{- end }}
+            - name: CONTAINERD
+          {{- if .Values.useContainerd}}
+              value: "true"
+          {{- else }}
+              value: "false"
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 3001
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+          {{- if .Values.useDocker}}
+          - name: dockersock
+            mountPath: /var/run/docker.sock
+          {{- end }}
+          {{- if .Values.useContainerd}}
+          - name: containerdsock
+            mountPath: /run/containerd/containerd.sock
+          {{- end}}
