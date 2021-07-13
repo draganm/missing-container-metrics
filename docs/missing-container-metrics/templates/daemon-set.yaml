@@ -34,6 +34,8 @@ spec:
         hostPath:
           path: /run/containerd/containerd.sock
       {{- end }}
+      tolerations:
+      - operator: exists
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
