@@ -43,6 +43,9 @@ resources: {}
 useDocker: false
 useContainerd: true
 
+# Override containerd socket path. Bottlerocket uses /run/dockershim.sock even though it uses containerd.
+containerdSocketPath: /run/containerd/containerd.sock
+
 prometheusOperator:
   podMonitor:
     # Create a Prometheus Operator PodMonitor resource
