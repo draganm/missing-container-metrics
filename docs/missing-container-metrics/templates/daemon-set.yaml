@@ -34,6 +34,10 @@ spec:
         hostPath:
           path: /run/containerd/containerd.sock
       {{- end }}
+      {{- if .Values.tolerations  }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
