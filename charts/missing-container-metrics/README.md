@@ -37,7 +37,8 @@ $ helm install my-release-name missing-container-metrics/missing-container-metri
 | podSecurityContext                                    | Set the security context for the pods                             |                                                                   |
 | securityContext                                       | Set the security context for the container in the pods            |                                                                   |
 | priorityClassName                                     | Set the Pod Priority Class for the pods                           |                                                                   |
+| updateStrategy                                        | Set the DaemonSet update strategy                                 | `{}`                                                              |
 | resources                                             | CPU/memory resource requests/limits                               | `{}`                                                              |
-| tolerations                                           | Tolerations used for pod scheduling                               | 
+| tolerations                                           | Tolerations used for pod scheduling                               |                                                                   |
 | useDocker                                             | If true, container info is obtained from Docker                   | `false`                                                           |
 | useContainerd                                         | If true, container info is obtained from Containerd               | `true`                                                            |

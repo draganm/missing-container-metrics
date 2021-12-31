@@ -27,7 +27,13 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
-# priorityClassName: classname
+priorityClassName: ""
+
+updateStrategy: {}
+# type: RollingUpdate
+# rollingUpdate:
+#   maxSurge: 0
+#   maxUnavailable: 1
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
