@@ -33,7 +33,7 @@ Both options should cover most of common use cases (EKS, GKE, K3S, Digital Ocean
 
 ### Kubernetes
 
-The easiest way of installing `missing-container-metrics` in your kubernetes cluster is using the Helm Chart..
+The easiest way of installing `missing-container-metrics` in your kubernetes cluster is using the [Helm Chart](/charts/missing-container-metrics).
 
 ### Docker
 
