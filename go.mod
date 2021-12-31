@@ -1,4 +1,4 @@
-module github.com/draganm/missing-container-metrics
+module github.com/cablespaghetti/missing-container-metrics
 
 go 1.14
 

@@ -18,4 +18,5 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           chart_version: ${{ steps.version.outputs.CHART_VERSION }}
+          app_version: ${{ steps.version.outputs.CHART_VERSION }}
 

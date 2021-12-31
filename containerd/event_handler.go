@@ -7,7 +7,7 @@ import (
 
 	"github.com/containerd/containerd/api/events"
 
-	"github.com/draganm/missing-container-metrics/metrics"
+	"github.com/cablespaghetti/missing-container-metrics/metrics"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 )

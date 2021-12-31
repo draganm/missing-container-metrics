@@ -8,13 +8,13 @@ For motivation and implementation details please refer to [blog post](https://ww
 ## TL;DR;
 
 ```bash
-$ helm repo add missing-container-metrics https://draganm.github.io/missing-container-metrics
+$ helm repo add missing-container-metrics https://cablespaghetti.github.io/missing-container-metrics
 $ helm install missing-container-metrics missing-container-metrics/missing-container-metrics
 ```
 
 ## Adding Helm repo to your Helm client
 ```bash
-$ helm repo add missing-container-metrics https://draganm.github.io/missing-container-metrics
+$ helm repo add missing-container-metrics https://cablespaghetti.github.io/missing-container-metrics
 ```
 
 ## Installing the Chart
@@ -27,9 +27,9 @@ $ helm install my-release-name missing-container-metrics/missing-container-metri
 
 | Parameter                                             | Description                                                       | Default                                                           |
 |-------------------------------------------------------|-------------------------------------------------------------------|-------------------------------------------------------------------|
-| image.repository                                      | missing-container-metrics image name                              | `dmilhdef/missing-container-metrics`                              |
+| image.repository                                      | missing-container-metrics image name                              | `ghcr.io/cablespaghetti/missing-container-metrics`                |
 | image.pullPolicy                                      | pull policy for the image                                         | `IfNotPresent`                                                    |
-| image.tag                                             | tag of the missing-container-metrics image                        | `v0.21.0`                                                         |
+| image.tag                                             | tag of the missing-container-metrics image                        | Helm Chart Version                                                |
 | imagePullSecrets                                      | pull secrets for the image                                        | `[]`                                                              |
 | nameOverride                                          | Override the generated chart name. Defaults to .Chart.Name.       |                                                                   |
 | fullnameOverride                                      | Override the generated release name. Defaults to .Release.Name.   |                                                                   |
