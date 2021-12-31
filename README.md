@@ -1,8 +1,6 @@
 # Missing Container Metrics - metrics cadvisor won't give you
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/dmilhdef/missing-container-metrics.svg?maxAge=604800)][hub]
-[![Docker Image Version](https://img.shields.io/docker/v/dmilhdef/missing-container-metrics?sort=semver)][hub]
-
+Fork of [draganm/missing-container-metrics](https://github.com/draganm/missing-container-metrics).
 
 **STATUS: stable, maintained**
 
@@ -35,13 +33,12 @@ Both options should cover most of common use cases (EKS, GKE, K3S, Digital Ocean
 
 ### Kubernetes
 
-The easiest way of installing `missing-container-metrics` in your kubernetes cluster is using our [helm chart](https://artifacthub.io/packages/helm/missing-container-metrics/missing-container-metrics).
-
+The easiest way of installing `missing-container-metrics` in your kubernetes cluster is using the Helm Chart..
 
 ### Docker
 
 ```sh
-$ docker run -d -p 3001:3001 -v /var/run/docker.sock:/var/run/docker.sock dmilhdef/missing-container-metrics:v0.14.0
+$ docker run -d -p 3001:3001 -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/cablespaghetti/missing-container-metrics:0.22.0
 ```
 
 ## Usage
@@ -106,7 +103,5 @@ Contributions are welcome, send your issues and PRs to this repo.
 
 ## License
 
-[MIT](LICENSE) - Copyright Dragan Milic and contributors
+[MIT](LICENSE) - Copyright Dragan Milic and Sam Weston
 
-
-[hub]: https://hub.docker.com/r/dmilhdef/missing-container-metrics/
