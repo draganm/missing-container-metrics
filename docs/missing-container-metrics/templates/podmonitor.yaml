@@ -1,0 +1,23 @@
+{{ if .Values.prometheusOperator.podMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ include "missing-container-metrics.fullname" . }}
+  {{- with .Values.prometheusOperator.podMonitor.namespace }}
+  namespace: {{ . }}
+  {{- end }}
+  labels:
+    {{- include "missing-container-metrics.labels" . | nindent 4 }}
+    {{- with .Values.prometheusOperator.podMonitor.selector }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "missing-container-metrics.selectorLabels" . | nindent 6 }}
+  podMetricsEndpoints:
+  - port: http
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+{{ end }}

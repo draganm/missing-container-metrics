@@ -17,7 +17,6 @@ podAnnotations:
   prometheus.io/scrape: "true"
   prometheus.io/port: "3001"
 
-
 podSecurityContext: {}
   # fsGroup: 2000
 
@@ -28,7 +27,6 @@ securityContext: {}
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
-
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -44,3 +42,41 @@ resources: {}
 
 useDocker: false
 useContainerd: true
+
+# Override containerd socket path. Bottlerocket uses /run/dockershim.sock even though it uses containerd.
+containerdSocketPath: /run/containerd/containerd.sock
+
+prometheusOperator:
+  podMonitor:
+    # Create a Prometheus Operator PodMonitor resource
+    enabled: false
+    # Namespace defaults to the Release namespace but can be overridden
+    namespace: ""
+    # Additional labels to add to the PodMonitor so it matches the Operator's podMonitorSelector
+    selector:
+      # release: "kube-prometheus-stack"
+
+  prometheusRule:
+    # Create a Prometheus Operator PrometheusRule resource
+    enabled: false
+    # Namespace defaults to the Release namespace but can be overridden
+    namespace: ""
+    # Additional labels to add to the PrometheusRule so it matches the Operator's ruleSelector
+    selector:
+      # release: "kube-prometheus-stack"
+      # app: "kube-prometheus-stack"
+    # The rules can be set here. An example is defined here but can be overridden.
+    rules:
+    - alert: ContainerOOMObserved
+      annotations:
+        message: A process in this Pod has been OOMKilled due to exceeding the Kubernetes memory limit at least twice in the last 15 minutes. Look at the metrics to determine if a memory limit increase is required.
+      expr: max(increase(container_ooms[15m])) by (exported_namespace, exported_pod) > 2
+      labels:
+        severity: warning
+    - alert: ContainerOOMObserved
+      annotations:
+        message: A process in this Pod has been OOMKilled due to exceeding the Kubernetes memory limit at least ten times in the last 15 minutes. Look at the metrics to determine if a memory limit increase is required.
+      expr: max(increase(container_ooms[15m])) by (exported_namespace, exported_pod) > 10
+      labels:
+        severity: critical
+

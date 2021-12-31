@@ -1,0 +1,19 @@
+{{ if .Values.prometheusOperator.prometheusRule.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "missing-container-metrics.fullname" . }}
+  {{- with .Values.prometheusOperator.prometheusRule.namespace }}
+  namespace: {{ . }}
+  {{- end }}
+  labels:
+    {{- include "missing-container-metrics.labels" . | nindent 4 }}
+    {{- with .Values.prometheusOperator.prometheusRule.selector }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  groups:
+  - name: {{ include "missing-container-metrics.fullname" . }}
+    rules:
+      {{- toYaml .Values.prometheusOperator.prometheusRule.rules | nindent 6 }}
+{{ end }}
