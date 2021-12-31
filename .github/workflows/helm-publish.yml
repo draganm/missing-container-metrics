@@ -1,0 +1,16 @@
+name: Package and publish helm chart to Github Pages
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  helm_publish:
+    runs-on: "ubuntu-20.04"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Publish Helm charts
+        uses: stefanprodan/helm-gh-pages@master
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
