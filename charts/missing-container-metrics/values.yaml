@@ -12,7 +12,6 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-
 podAnnotations:
   prometheus.io/scrape: "true"
   prometheus.io/port: "3001"
@@ -27,6 +26,8 @@ securityContext: {}
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
+
+# priorityClassName: classname
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
