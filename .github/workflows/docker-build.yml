@@ -19,7 +19,7 @@ jobs:
           cache: true
 
       - name: Build
-        run: GOOS=linux GOARCH=${{ matrix.arch }} go build -o missing-container-metrics-${{ matrix.arch }}-linux
+        run: CGO_ENABLED=0 GOOS=linux GOARCH=${{ matrix.arch }} go build -ldflags "-X main.Version=${{ github.sha }}" -o missing-container-metrics-${{ matrix.arch }}-linux
 
       - uses: actions/upload-artifact@v3
         with:
