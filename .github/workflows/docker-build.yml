@@ -20,12 +20,11 @@ jobs:
           cache: true
 
       - name: Build
-        run: CGO_ENABLED=0 GOOS=linux GOARCH=${{ matrix.arch }} go build -ldflags "-X main.Version=${{ github.sha }}" -o missing-container-metrics-${{ matrix.arch }}-linux
-
+        run: CGO_ENABLED=0 GOOS=linux GOARCH=${{ matrix.arch }} go build -ldflags "-X main.Version=${{ github.sha }}"
       - uses: actions/upload-artifact@v3
         with:
           name: missing-container-metrics-${{ matrix.arch }}-linux
-          path: missing-container-metrics-${{ matrix.arch }}-linux
+          path: missing-container-metrics
 
   docker_publish:
     name: Docker Build and Push
@@ -40,7 +39,7 @@ jobs:
         uses: actions/download-artifact@v3
 
       - name: Fix binary permissions
-        run: chmod 755 missing-container-metrics-*-linux
+        run: chmod 755 missing-container-metrics-*-linux/*
 
       - name: Login to ghcr.io
         uses: docker/login-action@v2
