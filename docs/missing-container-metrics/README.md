@@ -36,7 +36,6 @@ $ helm install my-release-name missing-container-metrics/missing-container-metri
 | podAnnotations                                        | Annotations for the started pods                                  | `{"prometheus.io/scrape": "true", "prometheus.io/port": "3001"}`  |
 | podSecurityContext                                    | Set the security context for the pods                             |                                                                   |
 | priorityClassName                                     | Name of the existing priority class to be used by  pod(s)         | `""`                                                              |
-| podSecurityContext                                    | Set the security context for the pods                             |                                                                   |
 | securityContext                                       | Set the security context for the container in the pods            |                                                                   |
 | resources                                             | CPU/memory resource requests/limits                               | `{}`                                                              |
 | useDocker                                             | If true, container info is obtained from Docker                   | `false`                                                           |
