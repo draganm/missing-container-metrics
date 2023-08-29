@@ -44,3 +44,7 @@ resources: {}
 
 useDocker: false
 useContainerd: true
+
+nodeSelector: {}
+  # Specify on which nodes this should run. E.g.
+  # company.com/nodegroup: "prometheus"
