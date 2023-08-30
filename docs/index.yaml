@@ -3,22 +3,32 @@ entries:
   missing-container-metrics:
   - apiVersion: v2
     appVersion: 0.21.0
-    created: "2021-03-16T23:23:55.350667202Z"
+    created: "2023-08-30T09:09:36.706719+02:00"
+    description: A Helm chart for installing missing-container-metrics exporter
+    digest: ae619974cc86cd19797202399b8466ab0033c660c5bc7b8c94e63223d1aa5a2e
+    name: missing-container-metrics
+    type: application
+    urls:
+    - https://jimdo.github.io/missing-container-metrics/missing-container-metrics-0.2.1.tgz
+    version: 0.2.1
+  - apiVersion: v2
+    appVersion: 0.21.0
+    created: "2023-08-30T09:09:36.70651+02:00"
     description: A Helm chart for installing missing-container-metrics exporter
     digest: 7a7363437f74d90c3ad7071a5a3aff221b68b91ff7dc67bb32d192d5aba60139
     name: missing-container-metrics
     type: application
     urls:
-    - https://draganm.github.io/missing-container-metrics/missing-container-metrics-0.1.1.tgz
+    - https://jimdo.github.io/missing-container-metrics/missing-container-metrics-0.1.1.tgz
     version: 0.1.1
   - apiVersion: v2
     appVersion: 0.21.0
-    created: "2021-03-16T23:23:55.350330768Z"
+    created: "2023-08-30T09:09:36.706293+02:00"
     description: A Helm chart for installing missing-container-metrics exporter
     digest: 89b557073108b81e88b0adc460a5f6b05ac965bc79fbc06e69efc55a631f6eb0
     name: missing-container-metrics
     type: application
     urls:
-    - https://draganm.github.io/missing-container-metrics/missing-container-metrics-0.1.0.tgz
+    - https://jimdo.github.io/missing-container-metrics/missing-container-metrics-0.1.0.tgz
     version: 0.1.0
-generated: "2021-03-16T23:23:55.349887903Z"
+generated: "2023-08-30T09:09:36.706004+02:00"
